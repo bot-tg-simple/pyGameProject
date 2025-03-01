@@ -67,7 +67,55 @@ def check_draw():
     return True
 
 
+# Стартовое окно
+def start_window():
+    WINDOW.fill(WHITE)
+    font = pygame.font.Font(None, 36)
+    text = font.render("Крестики-Нолики", True, BLACK)
+    WINDOW.blit(text, (WINDOW_WIDTH // 2 - text.get_width() // 2, WINDOW_HEIGHT // 2 - text.get_height() // 2 - 100))
+    pygame.draw.rect(WINDOW, BLACK, (WINDOW_WIDTH // 2 - 100, WINDOW_HEIGHT // 2 - 50, 200, 50), 2)
+    text = font.render("Крестик", True, BLACK)
+    WINDOW.blit(text, (WINDOW_WIDTH // 2 - text.get_width() // 2, WINDOW_HEIGHT // 2 - 25))
+    pygame.draw.rect(WINDOW, BLACK, (WINDOW_WIDTH // 2 - 100, WINDOW_HEIGHT // 2 + 50, 200, 50), 2)
+    text = font.render("Нолик", True, BLACK)
+    WINDOW.blit(text, (WINDOW_WIDTH // 2 - text.get_width() // 2, WINDOW_HEIGHT // 2 + 75))
+    pygame.display.update()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                if WINDOW_WIDTH // 2 - 100 < x < WINDOW_WIDTH // 2 + 100 and WINDOW_HEIGHT // 2 - 50 < y < WINDOW_HEIGHT // 2:
+                    return "X"
+                elif WINDOW_WIDTH // 2 - 100 < x < WINDOW_WIDTH // 2 + 100 and WINDOW_HEIGHT // 2 + 50 < y < WINDOW_HEIGHT // 2 + 100:
+                    return "O"
+
+
+# Финальное окно
+def end_window(score):
+    WINDOW.fill(WHITE)
+    font = pygame.font.Font(None, 36)
+    text = font.render("Игра окончена!", True, BLACK)
+    WINDOW.blit(text, (WINDOW_WIDTH // 2 - text.get_width() // 2, WINDOW_HEIGHT // 2 - text.get_height() // 2 - 100))
+    text = font.render(f"Счёт (X - O): {score['X']} - {score['O']}", True, BLACK)
+    WINDOW.blit(text, (WINDOW_WIDTH // 2 - text.get_width() // 2, WINDOW_HEIGHT // 2 - text.get_height() // 2))
+    pygame.display.update()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                waiting = False
+
+
 # Основной цикл игры
+score = {"X": 0, "O": 0}
+CURRENT_PLAYER = start_window()
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -82,14 +130,17 @@ while True:
                 pygame.display.update()
                 if check_win():
                     print(f"Игрок {CURRENT_PLAYER} выиграл!")
-                    pygame.time.delay(2000)
+                    score[CURRENT_PLAYER] += 1
+                    pygame.time.delay(2000)  # пауза на 2 секунды
+                    end_window(score)
                     FIELD = [[" " for _ in range(3)] for _ in range(3)]
-                    CURRENT_PLAYER = "X"
+                    CURRENT_PLAYER = start_window()
                 elif check_draw():
                     print("Ничья!")
-                    pygame.time.delay(2000)
+                    pygame.time.delay(2000)  # пауза на 2 секунды
+                    end_window(score)
                     FIELD = [[" " for _ in range(3)] for _ in range(3)]
-                    CURRENT_PLAYER = "X"
+                    CURRENT_PLAYER = start_window()
                 else:
                     CURRENT_PLAYER = "O" if CURRENT_PLAYER == "X" else "X"
     draw_field()
